@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misi Siber Kid: Permainan Interaktif Pendidikan</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Orbitron for futuristic titles & Fredoka for friendly rounded text -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        fredoka: ['Fredoka', 'cursive', 'sans-serif'],
+                    },
+                    colors: {
+                        cyberDark: '#0b0f19',
+                        cyberPanel: '#161e31',
+                        neonCyan: '#00f0ff',
+                        neonPink: '#ff007f',
+                        neonYellow: '#ffe600',
+                        neonGreen: '#00ff66',
+                        neonPurple: '#b026ff',
+                    },
+                    boxShadow: {
+                        glowCyan: '0 0 20px rgba(0, 240, 255, 0.5), 0 0 40px rgba(0, 240, 255, 0.2)',
+                        glowPink: '0 0 20px rgba(255, 0, 127, 0.5), 0 0 40px rgba(255, 0, 127, 0.2)',
+                        glowGreen: '0 0 20px rgba(0, 255, 102, 0.5), 0 0 40px rgba(0, 255, 102, 0.2)',
+                        glowYellow: '0 0 20px rgba(255, 230, 0, 0.5), 0 0 40px rgba(255, 230, 0, 0.2)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom animations & high usability styling */
+        body {
+            background-color: #0b0f19;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 127, 0.08) 0%, transparent 40%),
+                linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .bounce-gentle {
+            animation: bounceGentle 2s infinite ease-in-out;
+        }
+
+        @keyframes bounceGentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        /* Large touch-friendly active state */
+        .cyber-card {
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            touch-action: manipulation;
+        }
+
+        .cyber-card:hover, .cyber-card:focus {
+            transform: scale(1.03);
+        }
+
+        .cyber-card:active {
+            transform: scale(0.97);
+        }
+
+        /* Confetti canvas overlay */
+        #confettiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="font-fredoka text-white min-h-screen flex flex-col justify-between overflow-x-hidden p-2 md:p-6">
+
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- Top Navigation Header -->
+    <header class="w-full max-w-6xl mx-auto flex items-center justify-between p-3 md:p-4 bg-cyberPanel/90 border-2 border-neonCyan/40 rounded-2xl backdrop-blur-md shadow-glowCyan mb-3">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="playSound('click'); showHomePage()">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg text-2xl border border-neonCyan">
+                🤖
+            </div>
+            <div>
+                <h1 class="font-orbitron font-extrabold text-lg md:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-neonCyan via-white to-neonPink tracking-wider">
+                    MISI SIBER KID
+                </h1>
+                <p class="text-xs text-cyan-300 font-semibold tracking-wide">Pembelajaran Interaktif Mesra Kanak-Kanak Khas</p>
+            </div>
+        </div>
+
+        <div>
+            <!-- Home Button -->
+            <button onclick="playSound('click'); showHomePage()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold text-xs md:text-sm shadow-md border border-neonPink flex items-center gap-2 transition">
+                <i class="fas fa-house"></i>
+                <span>Menu Utama</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="w-full max-w-6xl mx-auto flex-1 flex flex-col justify-center items-center">
+
+        <!-- ================= PAGE 1: HOME PAGE WITH 3 MAIN TABS ================= -->
+        <section id="homePage" class="w-full flex flex-col items-center py-4">
+            
+            <!-- Futuristic Robot Mascot Welcome Banner -->
+            <div class="w-full bg-gradient-to-r from-slate-900/90 via-cyberPanel to-slate-900/90 border-2 border-neonCyan/50 rounded-3xl p-6 mb-8 text-center shadow-glowCyan relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 opacity-20 text-9xl pointer-events-none">🚀</div>
+                
+                <div class="inline-block bg-neonCyan/10 border border-neonCyan/40 px-4 py-1.5 rounded-full text-neonCyan font-orbitron text-xs md:text-sm font-bold mb-3 tracking-widest uppercase">
+                    ⚡ Permainan Pendidikan Khas ⚡
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 my-2">
+                    <div class="text-6xl md:text-7xl bounce-gentle cursor-pointer" onclick="playSound('click')">
+                        🤖
+                    </div>
+                    <div class="text-center sm:text-left">
+                        <h2 class="text-2xl md:text-4xl font-extrabold text-white mb-2">
+                            Hai Anak-Anak Murid Cikgu! Jom Belajar Sama-Sama!
+                        </h2>
+                        <p class="text-cyan-200 text-sm md:text-base max-w-xl">
+                            Sila pilih salah satu aktiviti pembelajaran interaktif di bawah untuk memulakan permainan.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3 MAIN TABS / GAME SELECTION BUTTONS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+
+                <!-- TAB 1: KITA SAMA -->
+                <div class="cyber-card bg-cyberPanel border-3 border-neonCyan/60 rounded-3xl p-6 flex flex-col items-center text-center shadow-glowCyan relative overflow-hidden group">
+                    <div class="w-20 h-20 bg-cyan-500/20 border-2 border-neonCyan rounded-2xl flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition-transform">
+                        🎯
+                    </div>
+                    <span class="text-xs font-orbitron font-bold text-neonCyan tracking-widest uppercase mb-1">Misi 1</span>
+                    <h3 class="text-2xl font-bold text-white mb-2">1. Kita Sama</h3>
+                    <p class="text-slate-300 text-sm mb-6 flex-1">
+                        Mengenal pasti objek, bentuk, atau simbol yang berpasangan dan identikal.
+                    </p>
+
+                    <button onclick="playSound('click'); startGameMode(1)" 
+                            class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-lg rounded-2xl shadow-lg border border-neonCyan tracking-wider uppercase transition">
+                        Mula Main <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- TAB 2: CARI OBJEK GANJIL -->
+                <div class="cyber-card bg-cyberPanel border-3 border-neonPink/60 rounded-3xl p-6 flex flex-col items-center text-center shadow-glowPink relative overflow-hidden group">
+                    <div class="w-20 h-20 bg-pink-500/20 border-2 border-neonPink rounded-2xl flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition-transform">
+                        🧩
+                    </div>
+                    <span class="text-xs font-orbitron font-bold text-neonPink tracking-widest uppercase mb-1">Misi 2</span>
+                    <h3 class="text-2xl font-bold text-white mb-2">2. Cari Objek Ganjil</h3>
+                    <p class="text-slate-300 text-sm mb-6 flex-1">
+                        Mengenal pasti satu objek yang berbeza atau lain daripada kumpulannya.
+                    </p>
+
+                    <button onclick="playSound('click'); startGameMode(2)" 
+                            class="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-black text-lg rounded-2xl shadow-lg border border-neonPink tracking-wider uppercase transition">
+                        Mula Main <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- TAB 3: CARI PERBEZAAN (PERBEZAAN SAIZ) -->
+                <div class="cyber-card bg-cyberPanel border-3 border-neonYellow/60 rounded-3xl p-6 flex flex-col items-center text-center shadow-glowYellow relative overflow-hidden group">
+                    <div class="w-20 h-20 bg-yellow-500/20 border-2 border-neonYellow rounded-2xl flex items-center justify-center text-4xl mb-4 group-hover:scale-110 transition-transform">
+                        📏
+                    </div>
+                    <span class="text-xs font-orbitron font-bold text-neonYellow tracking-widest uppercase mb-1">Misi 3</span>
+                    <h3 class="text-2xl font-bold text-white mb-2">3. Cari Perbezaan</h3>
+                    <p class="text-slate-300 text-sm mb-6 flex-1">
+                        Membandingkan saiz objek seperti besar, kecil, tinggi, pendek, atau panjang.
+                    </p>
+
+                    <button onclick="playSound('click'); startGameMode(3)" 
+                            class="w-full py-4 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-950 font-black text-lg rounded-2xl shadow-lg border border-neonYellow tracking-wider uppercase transition">
+                        Mula Main <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ================= PAGE 2: GAMEPLAY SCREEN CONTAINER ================= -->
+        <section id="gamePage" class="w-full flex-col items-center py-2 hidden">
+            
+            <!-- Game Progress Header -->
+            <div class="w-full bg-cyberPanel border-2 border-slate-700 rounded-2xl p-4 mb-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+                <div class="flex items-center gap-3">
+                    <span id="gameBadgeIcon" class="text-3xl">🎯</span>
+                    <div>
+                        <h2 id="gameTitle" class="font-orbitron text-lg md:text-xl font-bold text-white">Mod Permainan</h2>
+                        <span id="levelCounter" class="text-xs font-bold text-neonCyan bg-cyan-950/80 px-2.5 py-1 rounded-lg border border-cyan-800">
+                            Soalan 1 daripada 4
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Stars & Score -->
+                <div class="flex items-center gap-4">
+                    <div id="starContainer" class="flex text-yellow-400 text-xl space-x-1">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-700 px-4 py-1.5 rounded-xl text-right">
+                        <span class="text-xs text-slate-400 block font-bold">MARKAH</span>
+                        <span id="scoreText" class="text-neonGreen font-orbitron font-bold text-xl">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instruction Box -->
+            <div id="instructionCard" class="w-full bg-slate-900/90 border-2 border-neonCyan/70 rounded-2xl p-4 md:p-5 mb-6 text-center relative shadow-glowCyan">
+                <p id="instructionText" class="text-xl md:text-2xl font-bold text-white tracking-wide">
+                    Pilih objek yang sama!
+                </p>
+                <p class="text-xs text-cyan-300 mt-1 font-semibold">
+                    Sentuh atau klik pada pilihan jawapan yang betul di bawah.
+                </p>
+            </div>
+
+            <!-- MAIN GAME DISPLAY AREA (TARGET ITEM & OPTIONS) -->
+            <div id="gameplayArea" class="w-full flex flex-col items-center min-h-[360px] justify-center">
+                <!-- Content will be dynamically injected via JavaScript -->
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="w-full flex justify-between items-center mt-6 pt-4 border-t border-slate-800">
+                <button onclick="playSound('click'); showHomePage()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl text-slate-300 font-bold text-sm flex items-center gap-2 transition">
+                    <i class="fas fa-arrow-left"></i> Kembali Ke Menu Utama
+                </button>
+
+                <button id="nextQuestionBtn" onclick="nextQuestion()" class="hidden px-6 py-3 bg-neonGreen hover:bg-green-400 text-slate-950 font-black rounded-xl text-base shadow-glowGreen flex items-center gap-2 transition">
+                    <span>Soalan Berikutnya</span> <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+        </section>
+
+
+        <!-- ================= PAGE 3: SCORE / CONGRATULATIONS SUMMARY ================= -->
+        <section id="summaryPage" class="w-full max-w-2xl bg-cyberPanel border-3 border-neonGreen/80 rounded-3xl p-8 text-center shadow-glowGreen hidden my-6">
+            <div class="text-7xl mb-4 bounce-gentle">🏆</div>
+            <h2 class="font-orbitron text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-neonGreen via-white to-neonCyan mb-2">
+                TAHNIAH! MISI SELESAI!
+            </h2>
+            <p id="summarySubtext" class="text-slate-300 text-base md:text-lg mb-6">
+                Syabas, semua soalan telah dijawab dengan cemerlang!
+            </p>
+
+            <div class="bg-slate-900/90 border border-slate-700 rounded-2xl p-6 mb-8 flex justify-around items-center">
+                <div>
+                    <span class="text-xs text-slate-400 font-bold uppercase block">Jumlah Markah</span>
+                    <span id="finalScore" class="font-orbitron text-4xl font-black text-neonYellow">100</span>
+                </div>
+                <div class="h-10 w-0.5 bg-slate-700"></div>
+                <div>
+                    <span class="text-xs text-slate-400 font-bold uppercase block">Bintang Diperoleh</span>
+                    <div id="finalStars" class="text-3xl text-yellow-400 flex gap-1 mt-1">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="repeatCurrentGame()" class="py-4 px-6 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold text-lg rounded-2xl flex items-center justify-center gap-2 transition">
+                    <i class="fas fa-rotate-right"></i> Cuba Lagi
+                </button>
+                <button onclick="playSound('click'); showHomePage()" class="py-4 px-8 bg-gradient-to-r from-neonCyan to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-lg rounded-2xl shadow-glowCyan flex items-center justify-center gap-2 transition">
+                    <i class="fas fa-house"></i> Kembali Ke Menu Utama
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-6xl mx-auto text-center py-4 text-xs text-slate-500 border-t border-slate-800/80 mt-6">
+        <p>⚡ Modul Interaktif Khas Bahasa Melayu • Dibina Khas Untuk Murid Berkeperluan Khas ⚡</p>
+    </footer>
+
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        /* ----------------------------------------------------
+           AUDIO SYNTHESIZER (CALM & SENSORY-FRIENDLY SFX)
+           Synthesized tones for clicks, correct, wrong & win answers
+        ---------------------------------------------------- */
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Gentle, calm SFX Generator designed for sensory comfort
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    // Soft marimba pop (sine wave, gentle attack)
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(520, now);
+                    osc.frequency.exponentialRampToValueAtTime(320, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+
+                } else if (type === 'correct') {
+                    // Soothing bell chime arpeggio (C5 - E5 - G5 - C6)
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.09);
+                        gain.gain.setValueAtTime(0.18, now + idx * 0.09);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.35);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + idx * 0.09);
+                        osc.stop(now + idx * 0.09 + 0.38);
+                    });
+
+                } else if (type === 'wrong') {
+                    // Soft warm try-again pitch drop (gentle sine wave - never startling)
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(260, now);
+                    osc.frequency.exponentialRampToValueAtTime(190, now + 0.22);
+                    gain.gain.setValueAtTime(0.14, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.22);
+
+                } else if (type === 'win') {
+                    // Victory fanfare chime
+                    const notes = [523.25, 659.25, 783.99, 880.00, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                        gain.gain.setValueAtTime(0.2, now + idx * 0.12);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.45);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + idx * 0.12);
+                        osc.stop(now + idx * 0.12 + 0.5);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
+
+        /* ----------------------------------------------------
+           GAME QUESTION BANK DATA
+        ---------------------------------------------------- */
+
+        // TOPIC 1: KITA SAMA (Matching Identical Items)
+        const gameData1 = [
+            {
+                prompt: "Pilih kristal yang SAMA dengan contoh Cikgu!",
+                target: { id: "gem-blue", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,10 90,35 75,90 25,90 10,35" fill="#00f0ff" stroke="#ffffff" stroke-width="4"/><polygon points="50,10 50,90 75,90 90,35" fill="#00aaff"/></svg>`, name: "Kristal Biru" },
+                options: [
+                    { id: "gem-pink", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,10 90,35 75,90 25,90 10,35" fill="#ff007f" stroke="#ffffff" stroke-width="4"/><polygon points="50,10 50,90 75,90 90,35" fill="#cc0066"/></svg>`, name: "Kristal Merah Jambu", correct: false },
+                    { id: "gem-blue", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,10 90,35 75,90 25,90 10,35" fill="#00f0ff" stroke="#ffffff" stroke-width="4"/><polygon points="50,10 50,90 75,90 90,35" fill="#00aaff"/></svg>`, name: "Kristal Biru", correct: true },
+                    { id: "gem-yellow", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,10 90,35 75,90 25,90 10,35" fill="#ffe600" stroke="#ffffff" stroke-width="4"/><polygon points="50,10 50,90 75,90 90,35" fill="#ccb800"/></svg>`, name: "Kristal Kuning", correct: false }
+                ]
+            },
+            {
+                prompt: "Cari robot yang SAMA dengan contoh Cikgu!",
+                target: { id: "bot-red", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="45" rx="10" fill="#ff007f" stroke="#fff" stroke-width="3"/><circle cx="40" cy="42" r="7" fill="#fff"/><circle cx="60" cy="42" r="7" fill="#fff"/><circle cx="40" cy="42" r="3" fill="#000"/><circle cx="60" cy="42" r="3" fill="#000"/><rect x="38" y="58" width="24" height="4" rx="2" fill="#fff"/><line x1="50" y1="25" x2="50" y2="10" stroke="#ff007f" stroke-width="4"/><circle cx="50" cy="8" r="5" fill="#ffe600"/></svg>`, name: "Robot Merah" },
+                options: [
+                    { id: "bot-green", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="45" rx="10" fill="#00ff66" stroke="#fff" stroke-width="3"/><circle cx="40" cy="42" r="7" fill="#fff"/><circle cx="60" cy="42" r="7" fill="#fff"/><circle cx="40" cy="42" r="3" fill="#000"/><circle cx="60" cy="42" r="3" fill="#000"/><rect x="38" y="58" width="24" height="4" rx="2" fill="#fff"/><line x1="50" y1="25" x2="50" y2="10" stroke="#00ff66" stroke-width="4"/><circle cx="50" cy="8" r="5" fill="#ffe600"/></svg>`, name: "Robot Hijau", correct: false },
+                    { id: "bot-purple", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="45" rx="10" fill="#b026ff" stroke="#fff" stroke-width="3"/><circle cx="40" cy="42" r="7" fill="#fff"/><circle cx="60" cy="42" r="7" fill="#fff"/><circle cx="40" cy="42" r="3" fill="#000"/><circle cx="60" cy="42" r="3" fill="#000"/><rect x="38" y="58" width="24" height="4" rx="2" fill="#fff"/><line x1="50" y1="25" x2="50" y2="10" stroke="#b026ff" stroke-width="4"/><circle cx="50" cy="8" r="5" fill="#ffe600"/></svg>`, name: "Robot Ungu", correct: false },
+                    { id: "bot-red", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="45" rx="10" fill="#ff007f" stroke="#fff" stroke-width="3"/><circle cx="40" cy="42" r="7" fill="#fff"/><circle cx="60" cy="42" r="7" fill="#fff"/><circle cx="40" cy="42" r="3" fill="#000"/><circle cx="60" cy="42" r="3" fill="#000"/><rect x="38" y="58" width="24" height="4" rx="2" fill="#fff"/><line x1="50" y1="25" x2="50" y2="10" stroke="#ff007f" stroke-width="4"/><circle cx="50" cy="8" r="5" fill="#ffe600"/></svg>`, name: "Robot Merah", correct: true }
+                ]
+            },
+            {
+                prompt: "Pilih bintang yang SAMA dengan contoh Cikgu!",
+                target: { id: "star-yellow", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,5 64,36 98,38 71,60 80,94 50,75 20,94 29,60 2,38 36,36" fill="#ffe600" stroke="#fff" stroke-width="3"/></svg>`, name: "Bintang Kuning" },
+                options: [
+                    { id: "star-yellow", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,5 64,36 98,38 71,60 80,94 50,75 20,94 29,60 2,38 36,36" fill="#ffe600" stroke="#fff" stroke-width="3"/></svg>`, name: "Bintang Kuning", correct: true },
+                    { id: "star-cyan", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,5 64,36 98,38 71,60 80,94 50,75 20,94 29,60 2,38 36,36" fill="#00f0ff" stroke="#fff" stroke-width="3"/></svg>`, name: "Bintang Biru", correct: false },
+                    { id: "star-pink", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,5 64,36 98,38 71,60 80,94 50,75 20,94 29,60 2,38 36,36" fill="#ff007f" stroke="#fff" stroke-width="3"/></svg>`, name: "Bintang Merah Jambu", correct: false }
+                ]
+            },
+            {
+                prompt: "Cari kapal angkasa yang SAMA dengan contoh Cikgu!",
+                target: { id: "ship-green", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><path d="M50 10 L80 80 L50 65 L20 80 Z" fill="#00ff66" stroke="#fff" stroke-width="3"/><circle cx="50" cy="45" r="8" fill="#00f0ff"/></svg>`, name: "Kapal Angkasa Hijau" },
+                options: [
+                    { id: "ship-orange", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><path d="M50 10 L80 80 L50 65 L20 80 Z" fill="#ff9900" stroke="#fff" stroke-width="3"/><circle cx="50" cy="45" r="8" fill="#00f0ff"/></svg>`, name: "Kapal Angkasa Jingga", correct: false },
+                    { id: "ship-green", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><path d="M50 10 L80 80 L50 65 L20 80 Z" fill="#00ff66" stroke="#fff" stroke-width="3"/><circle cx="50" cy="45" r="8" fill="#00f0ff"/></svg>`, name: "Kapal Angkasa Hijau", correct: true },
+                    { id: "ship-purple", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><path d="M50 10 L80 80 L50 65 L20 80 Z" fill="#b026ff" stroke="#fff" stroke-width="3"/><circle cx="50" cy="45" r="8" fill="#ffe600"/></svg>`, name: "Kapal Angkasa Ungu", correct: false }
+                ]
+            }
+        ];
+
+        // TOPIC 2: OBJEK GANJIL (Odd Item Out)
+        const gameData2 = [
+            {
+                prompt: "Mana satu objek yang GANJIL (berbeza bentuk)?",
+                options: [
+                    { id: "1", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="#00f0ff" stroke="#fff" stroke-width="4"/><circle cx="50" cy="50" r="18" fill="#0b0f19"/></svg>`, name: "Cakera Biru", correct: false },
+                    { id: "2", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="#00f0ff" stroke="#fff" stroke-width="4"/><circle cx="50" cy="50" r="18" fill="#0b0f19"/></svg>`, name: "Cakera Biru", correct: false },
+                    { id: "3", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><rect x="15" y="15" width="70" height="70" rx="10" fill="#ff007f" stroke="#fff" stroke-width="4"/><circle cx="50" cy="50" r="18" fill="#0b0f19"/></svg>`, name: "Kotak Merah Jambu (Ganjil)", correct: true },
+                    { id: "4", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="#00f0ff" stroke="#fff" stroke-width="4"/><circle cx="50" cy="50" r="18" fill="#0b0f19"/></svg>`, name: "Cakera Biru", correct: false }
+                ]
+            },
+            {
+                prompt: "Mana satu bateri yang GANJIL?",
+                options: [
+                    { id: "1", svg: `<svg class="w-20 h-24" viewBox="0 0 100 120"><rect x="25" y="20" width="50" height="85" rx="8" fill="#00ff66" stroke="#fff" stroke-width="3"/><rect x="40" y="8" width="20" height="12" rx="3" fill="#fff"/></svg>`, name: "Bateri Hijau", correct: false },
+                    { id: "2", svg: `<svg class="w-20 h-24" viewBox="0 0 100 120"><rect x="25" y="20" width="50" height="85" rx="8" fill="#00ff66" stroke="#fff" stroke-width="3"/><rect x="40" y="8" width="20" height="12" rx="3" fill="#fff"/></svg>`, name: "Bateri Hijau", correct: false },
+                    { id: "3", svg: `<svg class="w-20 h-24" viewBox="0 0 100 120"><rect x="25" y="20" width="50" height="85" rx="8" fill="#00ff66" stroke="#fff" stroke-width="3"/><rect x="40" y="8" width="20" height="12" rx="3" fill="#fff"/></svg>`, name: "Bateri Hijau", correct: false },
+                    { id: "4", svg: `<svg class="w-20 h-24" viewBox="0 0 100 120"><circle cx="50" cy="60" r="40" fill="#ffe600" stroke="#fff" stroke-width="3"/><rect x="40" y="8" width="20" height="12" rx="3" fill="#fff"/></svg>`, name: "Bateri Bulat (Ganjil)", correct: true }
+                ]
+            },
+            {
+                prompt: "Mana satu segitiga yang GANJIL (berbeza warna)?",
+                options: [
+                    { id: "1", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="#b026ff" stroke="#fff" stroke-width="4"/></svg>`, name: "Segitiga Ungu", correct: false },
+                    { id: "2", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="#ffe600" stroke="#fff" stroke-width="4"/></svg>`, name: "Segitiga Kuning (Ganjil)", correct: true },
+                    { id: "3", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="#b026ff" stroke="#fff" stroke-width="4"/></svg>`, name: "Segitiga Ungu", correct: false },
+                    { id: "4", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="#b026ff" stroke="#fff" stroke-width="4"/></svg>`, name: "Segitiga Ungu", correct: false }
+                ]
+            },
+            {
+                prompt: "Mana satu muka alien yang GANJIL (muka sedih)?",
+                options: [
+                    { id: "1", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" fill="#00f0ff"/><circle cx="35" cy="40" r="6" fill="#000"/><circle cx="65" cy="40" r="6" fill="#000"/><path d="M 35 65 Q 50 80 65 65" stroke="#000" stroke-width="4" fill="none"/></svg>`, name: "Alien Senyum", correct: false },
+                    { id: "2", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" fill="#00f0ff"/><circle cx="35" cy="40" r="6" fill="#000"/><circle cx="65" cy="40" r="6" fill="#000"/><path d="M 35 65 Q 50 80 65 65" stroke="#000" stroke-width="4" fill="none"/></svg>`, name: "Alien Senyum", correct: false },
+                    { id: "3", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" fill="#00f0ff"/><circle cx="35" cy="40" r="6" fill="#000"/><circle cx="65" cy="40" r="6" fill="#000"/><path d="M 35 70 Q 50 55 65 70" stroke="#000" stroke-width="4" fill="none"/></svg>`, name: "Alien Sedih (Ganjil)", correct: true },
+                    { id: "4", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" fill="#00f0ff"/><circle cx="35" cy="40" r="6" fill="#000"/><circle cx="65" cy="40" r="6" fill="#000"/><path d="M 35 65 Q 50 80 65 65" stroke="#000" stroke-width="4" fill="none"/></svg>`, name: "Alien Senyum", correct: false }
+                ]
+            }
+        ];
+
+        // TOPIC 3: CARI PERBEZAAN SAIZ (Size comparisons)
+        const gameData3 = [
+            {
+                prompt: "Pilih robot yang Paling BESAR!",
+                options: [
+                    { id: "small", sizeLabel: "Kecil", svg: `<svg class="w-16 h-16" viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="50" rx="10" fill="#00f0ff" stroke="#fff" stroke-width="4"/><circle cx="40" cy="45" r="5" fill="#fff"/><circle cx="60" cy="45" r="5" fill="#fff"/></svg>`, name: "Robot Kecil", correct: false },
+                    { id: "medium", sizeLabel: "Sederhana", svg: `<svg class="w-24 h-24" viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="10" fill="#00f0ff" stroke="#fff" stroke-width="4"/><circle cx="40" cy="45" r="6" fill="#fff"/><circle cx="60" cy="45" r="6" fill="#fff"/></svg>`, name: "Robot Sederhana", correct: false },
+                    { id: "big", sizeLabel: "Paling BESAR", svg: `<svg class="w-32 h-32" viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="12" fill="#00f0ff" stroke="#fff" stroke-width="4"/><circle cx="35" cy="45" r="8" fill="#fff"/><circle cx="65" cy="45" r="8" fill="#fff"/><rect x="35" y="65" width="30" height="6" rx="3" fill="#fff"/></svg>`, name: "Robot Paling Besar", correct: true }
+                ]
+            },
+            {
+                prompt: "Pilih botol yang Paling KECIL!",
+                options: [
+                    { id: "big", sizeLabel: "Besar", svg: `<svg class="w-32 h-32" viewBox="0 0 100 100"><rect x="25" y="15" width="50" height="75" rx="8" fill="#ff007f" stroke="#fff" stroke-width="4"/><rect x="40" y="5" width="20" height="10" fill="#fff"/></svg>`, name: "Botol Besar", correct: false },
+                    { id: "small", sizeLabel: "Paling KECIL", svg: `<svg class="w-14 h-14" viewBox="0 0 100 100"><rect x="25" y="15" width="50" height="75" rx="8" fill="#ff007f" stroke="#fff" stroke-width="4"/><rect x="40" y="5" width="20" height="10" fill="#fff"/></svg>`, name: "Botol Paling Kecil", correct: true },
+                    { id: "medium", sizeLabel: "Sederhana", svg: `<svg class="w-22 h-22" viewBox="0 0 100 100"><rect x="25" y="15" width="50" height="75" rx="8" fill="#ff007f" stroke="#fff" stroke-width="4"/><rect x="40" y="5" width="20" height="10" fill="#fff"/></svg>`, name: "Botol Sederhana", correct: false }
+                ]
+            },
+            {
+                prompt: "Pilih Menara Siber yang Paling TINGGI!",
+                options: [
+                    { id: "short", sizeLabel: "Pendek", svg: `<svg class="w-20 h-24" viewBox="0 0 100 120"><rect x="35" y="60" width="30" height="50" fill="#ffe600" stroke="#fff" stroke-width="3"/><polygon points="50,40 25,60 75,60" fill="#ff007f"/></svg>`, name: "Menara Pendek", correct: false },
+                    { id: "tall", sizeLabel: "Paling TINGGI", svg: `<svg class="w-20 h-44" viewBox="0 0 100 180"><rect x="35" y="20" width="30" height="150" fill="#ffe600" stroke="#fff" stroke-width="3"/><polygon points="50,0 20,20 80,20" fill="#ff007f"/></svg>`, name: "Menara Paling Tinggi", correct: true },
+                    { id: "medium", sizeLabel: "Sederhana", svg: `<svg class="w-20 h-32" viewBox="0 0 100 140"><rect x="35" y="40" width="30" height="90" fill="#ffe600" stroke="#fff" stroke-width="3"/><polygon points="50,20 25,40 75,40" fill="#ff007f"/></svg>`, name: "Menara Sederhana", correct: false }
+                ]
+            },
+            {
+                prompt: "Pilih wayar laser yang Paling PANJANG!",
+                options: [
+                    { id: "short", sizeLabel: "Pendek", svg: `<svg class="w-28 h-12" viewBox="0 0 120 40"><rect x="10" y="15" width="40" height="10" rx="5" fill="#00ff66" stroke="#fff" stroke-width="2"/></svg>`, name: "Wayar Pendek", correct: false },
+                    { id: "long", sizeLabel: "Paling PANJANG", svg: `<svg class="w-48 h-12" viewBox="0 0 200 40"><rect x="10" y="15" width="180" height="10" rx="5" fill="#00ff66" stroke="#fff" stroke-width="2"/></svg>`, name: "Wayar Paling Panjang", correct: true },
+                    { id: "medium", sizeLabel: "Sederhana", svg: `<svg class="w-36 h-12" viewBox="0 0 150 40"><rect x="10" y="15" width="100" height="10" rx="5" fill="#00ff66" stroke="#fff" stroke-width="2"/></svg>`, name: "Wayar Sederhana", correct: false }
+                ]
+            }
+        ];
+
+        /* ----------------------------------------------------
+           APPLICATION STATE & CORE NAVIGATION
+        ---------------------------------------------------- */
+        let currentMode = 1;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+        let currentQuestions = [];
+
+        function showHomePage() {
+            document.getElementById('homePage').classList.remove('hidden');
+            document.getElementById('gamePage').classList.add('hidden');
+            document.getElementById('gamePage').classList.remove('flex');
+            document.getElementById('summaryPage').classList.add('hidden');
+        }
+
+        function startGameMode(mode) {
+            currentMode = mode;
+            currentQuestionIndex = 0;
+            score = 0;
+            answered = false;
+
+            const titleEl = document.getElementById('gameTitle');
+            const iconEl = document.getElementById('gameBadgeIcon');
+
+            if (mode === 1) {
+                currentQuestions = gameData1;
+                titleEl.textContent = "1. Kita Sama";
+                iconEl.textContent = "🎯";
+            } else if (mode === 2) {
+                currentQuestions = gameData2;
+                titleEl.textContent = "2. Cari Objek Ganjil";
+                iconEl.textContent = "🧩";
+            } else if (mode === 3) {
+                currentQuestions = gameData3;
+                titleEl.textContent = "3. Cari Perbezaan";
+                iconEl.textContent = "📏";
+            }
+
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('summaryPage').classList.add('hidden');
+            document.getElementById('gamePage').classList.remove('hidden');
+            document.getElementById('gamePage').classList.add('flex');
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            answered = false;
+            document.getElementById('nextQuestionBtn').classList.add('hidden');
+
+            const q = currentQuestions[currentQuestionIndex];
+            document.getElementById('levelCounter').textContent = `Soalan ${currentQuestionIndex + 1} daripada ${currentQuestions.length}`;
+            document.getElementById('scoreText').textContent = score;
+            document.getElementById('instructionText').textContent = q.prompt;
+
+            const gameplayArea = document.getElementById('gameplayArea');
+            gameplayArea.innerHTML = '';
+
+            // Mode 1: Target item display at top
+            if (currentMode === 1 && q.target) {
+                const targetWrapper = document.createElement('div');
+                targetWrapper.className = 'w-full max-w-md bg-slate-900 border-2 border-neonCyan rounded-2xl p-4 mb-6 flex flex-col items-center justify-center shadow-glowCyan relative';
+                targetWrapper.innerHTML = `
+                    <div class="flex items-center justify-center w-full mb-2">
+                        <span class="text-xs font-bold text-neonCyan uppercase tracking-widest">⭐ Contoh Cikgu ⭐</span>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-cyan-500/30 flex items-center justify-center mb-2">
+                        ${q.target.svg}
+                    </div>
+                    <span class="text-sm font-bold text-white">${q.target.name}</span>
+                `;
+                gameplayArea.appendChild(targetWrapper);
+            }
+
+            // Options grid
+            const optionsGrid = document.createElement('div');
+            const gridCols = q.options.length === 4 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1 sm:grid-cols-3';
+            optionsGrid.className = `grid ${gridCols} gap-4 md:gap-6 w-full max-w-4xl justify-items-center items-center`;
+
+            q.options.forEach((opt) => {
+                const card = document.createElement('div');
+                card.className = 'cyber-card w-full bg-cyberPanel border-2 border-slate-700 hover:border-neonCyan rounded-2xl p-5 flex flex-col items-center justify-between shadow-lg transition-all relative cursor-pointer';
+                
+                let sizeBadge = opt.sizeLabel ? `<span class="mt-2 text-xs font-extrabold text-neonYellow bg-yellow-950/60 px-3 py-1 rounded-full border border-yellow-600/50">${opt.sizeLabel}</span>` : '';
+
+                card.innerHTML = `
+                    <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 mb-3 flex items-center justify-center w-full min-h-[110px] hover:bg-slate-900 transition">
+                        ${opt.svg}
+                    </div>
+                    <span class="font-bold text-white text-base text-center">${opt.name}</span>
+                    ${sizeBadge}
+                    <button type="button" class="mt-4 w-full py-2.5 bg-cyan-500/20 hover:bg-neonCyan hover:text-slate-950 border border-neonCyan text-neonCyan font-bold text-xs rounded-xl transition uppercase tracking-wider">
+                        Pilih Ini
+                    </button>
+                `;
+
+                card.onclick = () => handleChoice(opt, card);
+                optionsGrid.appendChild(card);
+            });
+
+            gameplayArea.appendChild(optionsGrid);
+        }
+
+        function handleChoice(selectedOption, cardElement) {
+            if (answered) return;
+
+            if (selectedOption.correct) {
+                answered = true;
+                playSound('correct');
+                score += 25;
+                document.getElementById('scoreText').textContent = score;
+
+                // Success visual feedback
+                cardElement.classList.remove('border-slate-700', 'hover:border-neonCyan');
+                cardElement.classList.add('border-neonGreen', 'bg-green-950/40', 'shadow-glowGreen');
+
+                const statusBadge = document.createElement('div');
+                statusBadge.className = 'mt-4 w-full py-2.5 bg-neonGreen text-slate-950 font-black text-sm rounded-xl text-center uppercase tracking-wider flex items-center justify-center gap-2 shadow-md';
+                statusBadge.innerHTML = '<i class="fas fa-circle-check text-lg"></i> Syabas! Betul!';
+
+                const oldBtn = cardElement.querySelector('button');
+                if (oldBtn) oldBtn.replaceWith(statusBadge);
+
+                // Show Next Question button
+                const nextBtn = document.getElementById('nextQuestionBtn');
+                if (nextBtn) {
+                    nextBtn.classList.remove('hidden');
+                    const btnSpan = nextBtn.querySelector('span');
+                    if (currentQuestionIndex === currentQuestions.length - 1) {
+                        btnSpan.textContent = 'Lihat Keputusan';
+                    } else {
+                        btnSpan.textContent = 'Soalan Berikutnya';
+                    }
+                }
+            } else {
+                playSound('wrong');
+                // Gentle error visual feedback (shake animation)
+                cardElement.classList.add('border-red-500', 'bg-red-950/30', 'animate-shake');
+                setTimeout(() => {
+                    cardElement.classList.remove('animate-shake');
+                }, 450);
+            }
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            currentQuestionIndex++;
+            if (currentQuestionIndex < currentQuestions.length) {
+                renderQuestion();
+            } else {
+                showSummary();
+            }
+        }
+
+        function showSummary() {
+            playSound('win');
+            triggerConfetti();
+            document.getElementById('gamePage').classList.add('hidden');
+            document.getElementById('gamePage').classList.remove('flex');
+            document.getElementById('summaryPage').classList.remove('hidden');
+            document.getElementById('finalScore').textContent = score;
+        }
+
+        function repeatCurrentGame() {
+            playSound('click');
+            startGameMode(currentMode);
+        }
+
+        /* ----------------------------------------------------
+           CONFETTI ANIMATION EFFECT FOR WINNING
+        ---------------------------------------------------- */
+        function triggerConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const colors = ['#00f0ff', '#ff007f', '#ffe600', '#00ff66', '#b026ff'];
+
+            for (let i = 0; i < 90; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 8 + 4,
+                    speedY: Math.random() * 3 + 2,
+                    speedX: Math.random() * 2 - 1,
+                    rotation: Math.random() * 360
+                });
+            }
+
+            let frame = 0;
+            function animateConfetti() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += p.speedX;
+                    p.rotation += 2;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rotation * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                });
+
+                frame++;
+                if (frame < 180) {
+                    requestAnimationFrame(animateConfetti);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            animateConfetti();
+        }
+    </script>
+</body>
+</html>
